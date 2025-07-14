@@ -9,8 +9,8 @@ import click
 from rich.console import Console
 from rich.logging import RichHandler
 
-from .tui.app import AgentApp
-from .config.manager import ConfigManager
+from deepin_term_agent.tui.app import AgentApp
+from deepin_term_agent.config.manager import ConfigManager
 
 console = Console()
 
@@ -145,7 +145,7 @@ def init_config(ctx):
 @click.pass_context
 def run(ctx, command):
     """Run in headless mode (execute a single command)."""
-    from .agent.agent import TerminalAgent
+    from deepin_term_agent.agent.agent import TerminalAgent
     
     if not command:
         console.print("[red]Error: --command is required for headless mode[/red]")
