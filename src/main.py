@@ -9,7 +9,6 @@ import click
 from rich.console import Console
 from rich.logging import RichHandler
 
-from deepin_term_agent.tui.app import AgentApp
 from deepin_term_agent.config.manager import ConfigManager
 
 console = Console()
@@ -68,14 +67,13 @@ def cli(ctx, config_dir):
 @cli.command()
 @click.pass_context
 def start(ctx):
-    """Start the terminal agent TUI."""
-    config_manager = ctx.obj['config_manager']
+    """Start the interactive CLI (like Claude Code)."""
+    from deepin_term_agent.cli.interactive import run_interactive
     
-    console.print("[bold green]Starting Deepin Terminal Agent...[/bold green]")
+    console.print("[bold green]Starting Deepin Terminal Agent CLI...[/bold green]")
     
     try:
-        app = AgentApp()
-        app.run()
+        asyncio.run(run_interactive())
     except KeyboardInterrupt:
         console.print("\n[yellow]Shutting down...[/yellow]")
     except Exception as e:
