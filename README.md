@@ -1,20 +1,22 @@
 # Deepin Terminal Agent
 
-An AI-powered terminal agent with TUI interface that uses the MCP (Model Context Protocol) to provide intelligent tool access. The agent ships with built-in tools for file operations, command execution, and log analysis.
+An AI-powered terminal agent with TUI interface that uses Moonshot K2 AI and the MCP (Model Context Protocol) to provide intelligent terminal assistance. The agent ships with built-in tools for file operations, command execution, and log analysis, enhanced by advanced AI capabilities.
 
 ## Features
 
-- **TUI Interface**: Rich terminal interface built with Textual
-- **MCP Protocol Support**: Connect to MCP servers for extended tool capabilities
-- **Built-in Tools**: 
+- **🤖 AI-Powered**: Uses Moonshot K2 AI for intelligent command interpretation and tool selection
+- **🎯 Natural Language**: Ask questions naturally without memorizing command syntax
+- **🔧 TUI Interface**: Rich terminal interface built with Textual
+- **🔄 MCP Protocol Support**: Connect to MCP servers for extended tool capabilities
+- **📦 Built-in Tools**: 
   - Command execution (`run_command`)
   - File reading (`read_file`)
   - File writing (`write_file`)
   - Log file analysis (`read_logs`)
   - Directory listing (`list_directory`)
-- **Configuration Management**: Easy setup and management of MCP servers
-- **Async Support**: Full async/await support for responsive operation
-- **Extensible**: Easy to add new MCP servers and tools
+- **⚙️ Configuration Management**: Easy setup and management of MCP servers and AI settings
+- **⚡ Async Support**: Full async/await support for responsive operation
+- **🔌 Extensible**: Easy to add new MCP servers and tools
 
 ## Installation
 
@@ -33,6 +35,16 @@ pip install -e ".[dev]"
 ```
 
 ## Quick Start
+
+### AI Configuration (Recommended)
+
+```bash
+# Set up Moonshot K2 AI (interactive)
+python setup_llm.py
+
+# Or manually set environment variable
+export MOONSHOT_API_KEY="your-api-key-here"
+```
 
 ### Initialize Configuration
 
@@ -73,7 +85,24 @@ Once started, the TUI provides:
   - `Ctrl+L`: Clear chat
   - `Ctrl+R`: Refresh tools
 
-### Command Examples
+### AI-Powered Usage (Recommended)
+
+With Moonshot K2 AI configured, you can use natural language:
+
+```bash
+# Natural language examples
+"Show me what's in my home directory"
+"Find all Python files in the current directory"
+"Check the system logs for any errors in the last hour"
+"Create a backup of my .bashrc file"
+"What's taking up space in /var/log?"
+
+# The AI will intelligently select and use appropriate tools
+```
+
+### Traditional Command Usage
+
+You can also use traditional command syntax:
 
 ```bash
 # Run shell commands
@@ -115,6 +144,14 @@ Configuration is stored in `~/.config/deepin-term-agent/config.json`
       "url": "ws://localhost:8081",
       "enabled": false
     }
+  },
+  "llm": {
+    "provider": "moonshot",
+    "api_key": "your-api-key-here",
+    "model": "k2",
+    "temperature": 0.1,
+    "max_tokens": 4000,
+    "base_url": "https://api.moonshot.cn/v1"
   }
 }
 ```
@@ -180,16 +217,24 @@ ruff check src/
 
 ### Components
 
-1. **TerminalAgent**: Main agent class that processes user messages
+1. **TerminalAgent**: Main agent class that processes user messages with AI intelligence
 2. **ToolExecutor**: Manages both built-in and MCP tools
 3. **MCPClient**: Handles MCP protocol communication
-4. **AgentApp**: Textual TUI interface
-5. **ConfigManager**: Configuration management
+4. **MoonshotClient**: AI client for K2 LLM integration
+5. **AgentApp**: Textual TUI interface
+6. **ConfigManager**: Configuration management for both MCP and AI settings
 
 ### Data Flow
 
+**AI-Powered Mode:**
 1. User input → TUI → TerminalAgent
-2. TerminalAgent → Tool selection → ToolExecutor
+2. TerminalAgent → MoonshotClient (LLM) → Tool selection → ToolExecutor
+3. ToolExecutor → Built-in tool or MCP client → Execute
+4. Results → TerminalAgent → AI formatting → TUI display
+
+**Fallback Mode:**
+1. User input → TUI → TerminalAgent
+2. TerminalAgent → Simple command parsing → ToolExecutor
 3. ToolExecutor → Built-in tool or MCP client → Execute
 4. Results → TerminalAgent → Format → TUI display
 
@@ -240,14 +285,97 @@ Any MCP-compatible server can be added by updating the configuration:
 }
 ```
 
+## AI Features Deep Dive
+
+### Natural Language Processing
+
+The AI understands context and intent, allowing for complex requests:
+
+```bash
+# Complex operations made simple
+"I need to find all files modified in the last hour that contain 'error' in their name"
+"Show me a summary of the system logs, focusing on any warnings or errors"
+"Create a Python script that monitors disk usage and alerts when above 80%"
+```
+
+### Context Awareness
+
+- Maintains conversation history for context-aware responses
+- Remembers previous commands and results
+- Provides intelligent suggestions based on current directory and system state
+
+### Safety Features
+
+- AI evaluates command safety before execution
+- Provides warnings for potentially dangerous operations
+- Suggests safer alternatives when appropriate
+
+## Troubleshooting
+
+### AI Configuration Issues
+
+**Problem**: "No Moonshot API key found"
+```bash
+# Solution 1: Interactive setup
+python setup_llm.py
+
+# Solution 2: Environment variable
+export MOONSHOT_API_KEY="your-key-here"
+
+# Solution 3: Manual config edit
+# Edit ~/.config/deepin-term-agent/config.json
+```
+
+**Problem**: AI responses seem slow
+- Check your internet connection to Moonshot API
+- Consider reducing max_tokens in configuration
+- Use environment variable for faster startup: `export MOONSHOT_API_KEY=...`
+
+**Problem**: Fallback to simple commands
+- Verify API key is valid (check Moonshot dashboard)
+- Ensure base_url is correct (default: https://api.moonshot.cn/v1)
+- Check logs for detailed error messages
+
+### Performance Optimization
+
+For better performance with large directories or files:
+```json
+{
+  "llm": {
+    "max_tokens": 2000,
+    "temperature": 0.1,
+    "model": "k2"
+  }
+}
+```
+
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Run the test suite
-6. Submit a pull request
+### AI Development Guidelines
+
+When contributing AI-related features:
+
+1. **Test with real prompts**: Use diverse natural language inputs
+2. **Handle edge cases**: Consider malformed requests, large outputs, timeouts
+3. **Maintain fallback**: Always provide graceful fallback to simple parsing
+4. **Security first**: AI should never execute obviously dangerous commands
+5. **User experience**: Provide clear explanations of AI decisions
+
+### Development Setup for AI Features
+
+```bash
+# Install with dev dependencies
+pip install -e ".[dev]"
+
+# Set up test API key
+export MOONSHOT_API_KEY="test-key"
+
+# Run AI-specific tests
+pytest tests/test_llm_features.py
+
+# Test natural language processing
+python -m deepin_term_agent.cli.interactive --test-mode
+```
 
 ## License
 
