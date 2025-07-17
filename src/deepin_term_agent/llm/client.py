@@ -33,10 +33,7 @@ class MoonshotClient:
 
         # Available models from Moonshot K2
         self.models = {
-            "k2": "k2-latest",
-            "kimi-8k": "moonshot-v1-8k",
-            "kimi-32k": "moonshot-v1-32k",
-            "kimi-128k": "moonshot-v1-128k"
+            "k2": "kimi-k2-0711-preview",
         }
 
     async def chat_completion(
